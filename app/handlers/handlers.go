@@ -86,8 +86,8 @@ func generate(prompt string) {
 			"type": 1,
 			"options": [{
 				"type": 3,
-				"name": "` + prompt + `",
-				"value": "` + "wait" + `"
+				"name": "prompt",
+				"value": "` + prompt + `"
 			}],
 			"application_command": {
 				"id": "938956540159881230",
