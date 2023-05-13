@@ -48,11 +48,20 @@ func AddHandlers(sess *discordgo.Session) {
 			}
 
 			margs := make([]string, 0, len(options))
+			msgformat := "Take a look at the value(s) you entered:\n"
 
 			if option, ok := optionMap["prompt"]; ok {
 				margs = append(margs, option.StringValue())
 				prompt := strings.Join(margs[:], " ")
 				generate(prompt)
+				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+					// Ignore type for now, they will be discussed in "responses"
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Content: msgformat + prompt,
+					},
+				})
+
 			}
 		},
 	}
