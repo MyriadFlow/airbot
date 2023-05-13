@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -84,7 +86,7 @@ func generate(prompt string) {
 			"type": 1,
 			"options": [{
 				"type": 3,
-				"name": "prompt",
+				"name": "` + prompt + `",
 				"value": "` + "wait" + `"
 			}],
 			"application_command": {
@@ -108,6 +110,7 @@ func generate(prompt string) {
 			"attachments": []
 		}
 	}`
+	fmt.Println(jsonStr)
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
 	if err != nil {
 		log.Fatal(err)
@@ -122,6 +125,10 @@ func generate(prompt string) {
 	}
 	defer resp.Body.Close()
 
+	fmt.Println("response Status:", resp.Status)
+	fmt.Println("response Headers:", resp.Header)
+	body, _ := io.ReadAll(resp.Body)
+	fmt.Println("response Body:", string(body))
 }
 
 // func genImage(s *discordgo.Session, i *discordgo.InteractionCreate) {
