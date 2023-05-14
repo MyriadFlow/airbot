@@ -2,34 +2,17 @@ package handlers
 
 import (
 	"fmt"
-	"io"
 	"log"
-	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
+	"github.com/MyriadFlow/airbot/app/commands"
 	"github.com/bwmarrin/discordgo"
 )
 
-func RegisterCommands() []*discordgo.ApplicationCommand {
-	commands := []*discordgo.ApplicationCommand{
-		{
-			Name:        "generate",
-			Description: "Generate Image with given prompt",
-			Options: []*discordgo.ApplicationCommandOption{
-				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "prompt",
-					Description: "prompt to generate image",
-					Required:    true,
-				},
-			},
-		},
-	}
-	return commands
-}
 func AddHandlers(sess *discordgo.Session) {
-	commands := RegisterCommands()
+	commands := commands.RegisterCommands()
 	registeredCommands := make([]*discordgo.ApplicationCommand, len(commands))
 	for i, v := range commands {
 		cmd, err := sess.ApplicationCommandCreate("1105859400700276847", "", v)
@@ -53,9 +36,38 @@ func AddHandlers(sess *discordgo.Session) {
 			if option, ok := optionMap["prompt"]; ok {
 				margs = append(margs, option.StringValue())
 				prompt := strings.Join(margs[:], " ")
-				generate(prompt)
+				Generate(prompt)
 				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-					// Ignore type for now, they will be discussed in "responses"
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Content: msgformat + prompt,
+					},
+				})
+
+			}
+		},
+		"reply": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+
+			options := i.ApplicationCommandData().Options
+
+			optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
+			for _, opt := range options {
+				optionMap[opt.Name] = opt
+			}
+
+			margs := make([]string, 0, len(options))
+			msgformat := "Take a look at the value(s) you entered:\n"
+
+			if option, ok := optionMap["reply"]; ok {
+				margs = append(margs, option.StringValue())
+				prompt := strings.Join(margs[:], " ")
+				if i.Type == discordgo.InteractionApplicationCommand {
+					fmt.Println("called")
+					repliedMessageID := i.ApplicationCommandData().Options[0]
+					fmt.Println("Replied message ID:", repliedMessageID)
+				}
+
+				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 					Type: discordgo.InteractionResponseChannelMessageWithSource,
 					Data: &discordgo.InteractionResponseData{
 						Content: msgformat + prompt,
@@ -65,265 +77,51 @@ func AddHandlers(sess *discordgo.Session) {
 			}
 		},
 	}
-	//sess.AddHandler(generateImage)
+	const prefix = "!airbot"
 	sess.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
 			h(s, i)
 		}
 	})
-	// sess.AddHandler(upscale)
-	// sess.AddHandler(maxUpscale)
-	// sess.AddHandler(variation)
-}
-
-func generate(prompt string) {
-	url := "https://discord.com/api/v9/interactions"
-	server_id := os.Getenv("SERVER_ID")
-	user_token := os.Getenv("USER_TOKEN")
-	channel_id := os.Getenv("CHANNEL_ID")
-	// 		prompt := "Batman"
-	jsonStr := `{
-		"type": 2,
-		"application_id": "936929561302675456",
-		"guild_id": "` + server_id + `",
-		"channel_id": "` + channel_id + `",
-		"session_id": "2fb980f65e5c9a77c96ca01f2c242cf6",
-		"data": {
-			"version": "1077969938624553050",
-			"id": "938956540159881230",
-			"name": "imagine",
-			"type": 1,
-			"options": [{
-				"type": 3,
-				"name": "prompt",
-				"value": "` + prompt + `"
-			}],
-			"application_command": {
-				"id": "938956540159881230",
-				"application_id": "936929561302675456",
-				"version": "1077969938624553050",
-				"default_permission": true,
-				"default_member_permissions": null,
-				"type": 1,
-				"nsfw": false,
-				"name": "imagine",
-				"description": "Create images with Midjourney",
-				"dm_permission": true,
-				"options": [{
-					"type": 3,
-					"name": "prompt",
-					"description": "The prompt to imagine",
-					"required": true
-				}]
-			},
-			"attachments": []
+	sess.AddHandler(func(s *discordgo.Session, m *discordgo.MessageCreate) {
+		if m.Author.ID == s.State.User.ID {
+			return
 		}
-	}`
-	fmt.Println(jsonStr)
-	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
-	if err != nil {
-		log.Fatal(err)
-	}
-	req.Header.Set("authorization", user_token)
-	req.Header.Set("Content-Type", "application/json")
+		args := strings.Split(m.Content, " ")
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		panic(err)
-	}
-	defer resp.Body.Close()
+		if args[0] != prefix {
+			return
+		}
+		if args[1] == "upscale" {
+			if m.Message.Reference() != nil {
+				repliedMessageID := m.Message.Reference().MessageID
+				fmt.Println(repliedMessageID)
+				imageID, err := getImageURLByMessageID(s, os.Getenv("CHANNEL_ID"), repliedMessageID)
+				if err != nil {
+					fmt.Println("error", err)
+					return
+				}
+				fmt.Println("error", err)
+				fmt.Println("imageid", imageID)
+				number, _ := strconv.Atoi(args[2])
+				Upscale(number, repliedMessageID, args[3])
+			}
+		}
+		if args[1] == "variation" {
+			if m.Message.Reference() != nil {
+				repliedMessageID := m.Message.Reference().MessageID
+				fmt.Println(repliedMessageID)
+				imageID, err := getImageURLByMessageID(s, os.Getenv("CHANNEL_ID"), repliedMessageID)
+				if err != nil {
+					fmt.Println("error", err)
+					return
+				}
+				fmt.Println("error", err)
+				fmt.Println("imageid", imageID)
+				number, _ := strconv.Atoi(args[2])
+				Upscale(number, repliedMessageID, args[3])
+			}
+		}
 
-	fmt.Println("response Status:", resp.Status)
-	fmt.Println("response Headers:", resp.Header)
-	body, _ := io.ReadAll(resp.Body)
-	fmt.Println("response Body:", string(body))
+	})
 }
-
-// func genImage(s *discordgo.Session, i *discordgo.InteractionCreate) {
-
-// }
-
-// func generateImage(s *discordgo.Session, m *discordgo.MessageCreate) {
-// 	url := "https://discord.com/api/v9/interactions"
-// 	server_id := os.Getenv("SERVER_ID")
-// 	user_token := os.Getenv("USER_TOKEN")
-// 	channel_id := os.Getenv("CHANNEL_ID")
-// 	if m.Author.ID == s.State.User.ID {
-// 		return
-// 	}
-// 	prefix := "!mj"
-// 	args := strings.Split(m.Content, " ")
-
-// 	if args[0] != prefix {
-// 		return
-// 	}
-// 	if args[1] == "imagine" {
-// 		prompt := "Batman"
-// 		jsonStr := `{
-// 			"type": 2,
-// 			"application_id": "936929561302675456",
-// 			"guild_id": "` + server_id + `",
-// 			"channel_id": "` + channel_id + `",
-// 			"session_id": "2fb980f65e5c9a77c96ca01f2c242cf6",
-// 			"data": {
-// 				"version": "1077969938624553050",
-// 				"id": "938956540159881230",
-// 				"name": "imagine",
-// 				"type": 1,
-// 				"options": [{
-// 					"type": 3,
-// 					"name": "prompt",
-// 					"value": "` + prompt + `"
-// 				}],
-// 				"application_command": {
-// 					"id": "938956540159881230",
-// 					"application_id": "936929561302675456",
-// 					"version": "1077969938624553050",
-// 					"default_permission": true,
-// 					"default_member_permissions": null,
-// 					"type": 1,
-// 					"nsfw": false,
-// 					"name": "imagine",
-// 					"description": "Create images with Midjourney",
-// 					"dm_permission": true,
-// 					"options": [{
-// 						"type": 3,
-// 						"name": "prompt",
-// 						"description": "The prompt to imagine",
-// 						"required": true
-// 					}]
-// 				},
-// 				"attachments": []
-// 			}
-// 		}`
-// 		fmt.Println(jsonStr)
-// 		req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
-// 		if err != nil {
-// 			log.Fatal(err)
-// 		}
-// 		req.Header.Set("authorization", user_token)
-// 		req.Header.Set("Content-Type", "application/json")
-
-// 		client := &http.Client{}
-// 		resp, err := client.Do(req)
-// 		if err != nil {
-// 			panic(err)
-// 		}
-// 		defer resp.Body.Close()
-
-// 		fmt.Println("response Status:", resp.Status)
-// 		fmt.Println("response Headers:", resp.Header)
-// 		body, _ := io.ReadAll(resp.Body)
-// 		fmt.Println("response Body:", string(body))
-// 	}
-// }
-// func upscale(s *discordgo.Session, m *discordgo.MessageCreate) {
-// 	url := "https://discord.com/api/v9/interactions"
-// 	server_id := os.Getenv("SERVER_ID")
-// 	user_token := os.Getenv("USER_TOKEN")
-// 	channel_id := os.Getenv("CHANNEL_ID")
-
-// 	jsonStr := `{
-// 		"type": 3,
-// 		"guild_id": "` + server_id + `",
-// 		"channel_id": "` + channel_id + `",
-// 		"message_flags": 0,
-// 		"message_id": messageId,
-// 		"application_id": "936929561302675456",
-// 		"session_id": "45bc04dd4da37141a5f73dfbfaf5bdcf",
-// 		"data": {
-// 			"component_type": 2,
-// 			"custom_id": "MJ::JOB::upsample::{}::{}".format(index, messageHash)
-// 		}
-// 	}`
-
-// 	fmt.Println(jsonStr)
-// 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	req.Header.Set("authorization", user_token)
-// 	req.Header.Set("Content-Type", "application/json")
-
-// 	client := &http.Client{}
-// 	resp, err := client.Do(req)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	defer resp.Body.Close()
-
-// }
-// func maxUpscale(s *discordgo.Session, m *discordgo.MessageCreate) {
-// 	url := "https://discord.com/api/v9/interactions"
-// 	server_id := os.Getenv("SERVER_ID")
-// 	user_token := os.Getenv("USER_TOKEN")
-// 	channel_id := os.Getenv("CHANNEL_ID")
-
-// 	jsonStr := `{
-// 		"type": 3,
-// 		"guild_id": "` + server_id + `",
-// 		"channel_id": "` + channel_id + `",
-// 		"message_flags": 0,
-// 		"message_id": messageId,
-// 		"application_id": "936929561302675456",
-// 		"session_id": "1f3dbdf09efdf93d81a3a6420882c92c",
-// 		"data": {
-// 			"component_type": 2,
-// 			"custom_id": "MJ::JOB::upsample_max::1::{}::SOLO".format(messageHash)
-// 		}
-// 	}`
-
-// 	fmt.Println(jsonStr)
-// 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	req.Header.Set("authorization", user_token)
-// 	req.Header.Set("Content-Type", "application/json")
-
-// 	client := &http.Client{}
-// 	resp, err := client.Do(req)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	defer resp.Body.Close()
-
-// }
-
-// func variation(s *discordgo.Session, m *discordgo.MessageCreate) {
-// 	url := "https://discord.com/api/v9/interactions"
-// 	server_id := os.Getenv("SERVER_ID")
-// 	user_token := os.Getenv("USER_TOKEN")
-// 	channel_id := os.Getenv("CHANNEL_ID")
-
-// 	jsonStr := `{
-// 		"type": 3,
-// 		"guild_id": "` + server_id + `",
-// 		"channel_id": "` + channel_id + `",
-// 		"message_flags": 0,
-// 		"message_id": messageId,
-// 		"application_id": "936929561302675456",
-// 		"session_id": "1f3dbdf09efdf93d81a3a6420882c92c",
-// 		"data": {
-// 			"component_type": 2,
-// 			"custom_id": "MJ::JOB::variation::{}::{}".format(index, messageHash)
-// 		}
-// 	}`
-
-// 	fmt.Println(jsonStr)
-// 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	req.Header.Set("authorization", user_token)
-// 	req.Header.Set("Content-Type", "application/json")
-
-// 	client := &http.Client{}
-// 	resp, err := client.Do(req)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	defer resp.Body.Close()
-
-// }
