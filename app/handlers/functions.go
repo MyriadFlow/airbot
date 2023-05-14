@@ -92,7 +92,7 @@ func Upscale(number int, messageid string, imageid string) {
 		"session_id": "937a1c8132cd7ce3940aa8f59dedf961",
 		"data": {
 			"component_type": 2,
-			"custom_id": "MJ::JOB::upsample::` + numberString + `::` + imageid + `"
+			"custom_id": "MJ::JOB::upsample::"` + numberString + `"::"` + imageid + `"
 		}
 	}`
 	fmt.Println(jsonStr)
@@ -114,7 +114,45 @@ func Upscale(number int, messageid string, imageid string) {
 	fmt.Println("response Headers:", resp.Header)
 	body, _ := io.ReadAll(resp.Body)
 	fmt.Println("response Body:", string(body))
+}
 
+func UpscaleMax(number int, messageid string, imageid string) {
+	url := "https://discord.com/api/v9/interactions"
+	server_id := os.Getenv("SERVER_ID")
+	user_token := os.Getenv("USER_TOKEN")
+	channel_id := os.Getenv("CHANNEL_ID")
+	jsonStr := `{
+		"type": 3,
+		"guild_id": "` + server_id + `",
+		"channel_id": "` + channel_id + `",
+		"message_flags": 0,
+		"message_id": "` + messageid + `",
+		"application_id": "936929561302675456",
+		"session_id": "1f3dbdf09efdf93d81a3a6420882c92c",
+		"data": {
+			"component_type": 2,
+			"custom_id": "MJ::JOB::upsample_max::1::"` + imageid + `"::SOLO"
+		}
+	}`
+	fmt.Println(jsonStr)
+	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
+	if err != nil {
+		log.Fatal(err)
+	}
+	req.Header.Set("authorization", user_token)
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	fmt.Println("response Status:", resp.Status)
+	fmt.Println("response Headers:", resp.Header)
+	body, _ := io.ReadAll(resp.Body)
+	fmt.Println("response Body:", string(body))
 }
 
 func Variation(number int, messageid string, imageid string) {
@@ -132,9 +170,9 @@ func Variation(number int, messageid string, imageid string) {
 		"message_id": "` + messageid + `",
 		"application_id": "936929561302675456",
 		"session_id": "937a1c8132cd7ce3940aa8f59dedf961",
-		"data": {
+		"data": {a
 			"component_type": 2,
-			"custom_id": "MJ::JOB::variation::` + numberString + `::d7587486-5395-4332-9935-12c3261d7fc7"
+			"custom_id": "MJ::JOB::variation::"` + numberString + `"::"` + imageid + `"
 		}
 	}`
 	fmt.Println(jsonStr)
@@ -156,7 +194,6 @@ func Variation(number int, messageid string, imageid string) {
 	fmt.Println("response Headers:", resp.Header)
 	body, _ := io.ReadAll(resp.Body)
 	fmt.Println("response Body:", string(body))
-
 }
 
 func getImageURLByMessageID(s *discordgo.Session, channelID, messageID string) (string, error) {

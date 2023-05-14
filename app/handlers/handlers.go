@@ -119,6 +119,21 @@ func AddHandlers(sess *discordgo.Session) {
 				fmt.Println("error", err)
 				fmt.Println("imageid", imageID)
 				number, _ := strconv.Atoi(args[2])
+				Variation(number, repliedMessageID, args[3])
+			}
+		}
+		if args[1] == "maxupscale" {
+			if m.Message.Reference() != nil {
+				repliedMessageID := m.Message.Reference().MessageID
+				fmt.Println(repliedMessageID)
+				imageID, err := getImageURLByMessageID(s, os.Getenv("CHANNEL_ID"), repliedMessageID)
+				if err != nil {
+					fmt.Println("error", err)
+					return
+				}
+				fmt.Println("error", err)
+				fmt.Println("imageid", imageID)
+				number, _ := strconv.Atoi(args[2])
 				Upscale(number, repliedMessageID, args[3])
 			}
 		}
