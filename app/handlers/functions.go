@@ -54,7 +54,6 @@ func Generate(prompt string) {
 			"attachments": []
 		}
 	}`
-	fmt.Println(jsonStr)
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
 	if err != nil {
 		log.Fatal(err)
@@ -92,10 +91,9 @@ func Upscale(number int, messageid string, imageid string) {
 		"session_id": "937a1c8132cd7ce3940aa8f59dedf961",
 		"data": {
 			"component_type": 2,
-			"custom_id": "MJ::JOB::upsample::"` + numberString + `"::"` + imageid + `"
+			"custom_id": "MJ::JOB::upsample::` + numberString + `::` + imageid + `"
 		}
 	}`
-	fmt.Println(jsonStr)
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
 	if err != nil {
 		log.Fatal(err)
@@ -109,14 +107,9 @@ func Upscale(number int, messageid string, imageid string) {
 		panic(err)
 	}
 	defer resp.Body.Close()
-
-	fmt.Println("response Status:", resp.Status)
-	fmt.Println("response Headers:", resp.Header)
-	body, _ := io.ReadAll(resp.Body)
-	fmt.Println("response Body:", string(body))
 }
 
-func UpscaleMax(number int, messageid string, imageid string) {
+func UpscaleMax(messageid string, imageid string) {
 	url := "https://discord.com/api/v9/interactions"
 	server_id := os.Getenv("SERVER_ID")
 	user_token := os.Getenv("USER_TOKEN")
@@ -131,10 +124,9 @@ func UpscaleMax(number int, messageid string, imageid string) {
 		"session_id": "1f3dbdf09efdf93d81a3a6420882c92c",
 		"data": {
 			"component_type": 2,
-			"custom_id": "MJ::JOB::upsample_max::1::"` + imageid + `"::SOLO"
+			"custom_id": "MJ::JOB::upsample_max::1::` + imageid + `::SOLO"
 		}
 	}`
-	fmt.Println(jsonStr)
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
 	if err != nil {
 		log.Fatal(err)
@@ -148,11 +140,6 @@ func UpscaleMax(number int, messageid string, imageid string) {
 		panic(err)
 	}
 	defer resp.Body.Close()
-
-	fmt.Println("response Status:", resp.Status)
-	fmt.Println("response Headers:", resp.Header)
-	body, _ := io.ReadAll(resp.Body)
-	fmt.Println("response Body:", string(body))
 }
 
 func Variation(number int, messageid string, imageid string) {
@@ -172,10 +159,9 @@ func Variation(number int, messageid string, imageid string) {
 		"session_id": "937a1c8132cd7ce3940aa8f59dedf961",
 		"data": {a
 			"component_type": 2,
-			"custom_id": "MJ::JOB::variation::"` + numberString + `"::"` + imageid + `"
+			"custom_id": "MJ::JOB::variation::` + numberString + `::` + imageid + `"
 		}
 	}`
-	fmt.Println(jsonStr)
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
 	if err != nil {
 		log.Fatal(err)
@@ -196,21 +182,43 @@ func Variation(number int, messageid string, imageid string) {
 	fmt.Println("response Body:", string(body))
 }
 
-func getImageURLByMessageID(s *discordgo.Session, channelID, messageID string) (string, error) {
-	message, err := s.ChannelMessage(channelID, messageID)
+func getImageFromMessageID(session *discordgo.Session, channelID, messageID string) (string, string, error) {
+	message, err := session.ChannelMessage(channelID, messageID)
 	if err != nil {
-		return "", err
+		return "", "", fmt.Errorf("error retrieving message: %s", err)
 	}
 
-	imageURL := ""
+	var imageURL string
+	var imageID string
 
+	// Check if there are any attachments in the message
 	if len(message.Attachments) > 0 {
-		imageURL = message.Attachments[0].URL
+		attachment := message.Attachments[0]
+		imageURL = attachment.URL
+		imageID = attachment.ID
+	} else {
+		// Check if there are any embeds in the message
+		if len(message.Embeds) > 0 {
+			embed := message.Embeds[0]
+
+			// Check if the embed contains an image
+			if len(embed.Image.URL) > 0 {
+				imageURL = embed.Image.URL
+			}
+
+			// Check if the embed contains an image ID
+			if len(embed.Image.ProxyURL) > 0 {
+				imageID = embed.Image.ProxyURL
+			}
+		}
 	}
 
-	if len(message.Embeds) > 0 && len(message.Embeds[0].Image.URL) > 0 {
-		imageURL = message.Embeds[0].Image.URL
-	}
+	return imageURL, imageID, nil
+}
 
-	return imageURL, nil
+func getImageId(url string) string {
+	arr := strings.Split(url, "_")
+	png := arr[len(arr)-1]
+	imageId := strings.Split(png, ".")[0]
+	return imageId
 }

@@ -63,48 +63,41 @@ func AddHandlers(sess *discordgo.Session) {
 			return
 		}
 		if args[1] == "upscale" {
-			if m.Message.Reference() != nil {
-				repliedMessageID := m.Message.Reference().MessageID
-				fmt.Println(repliedMessageID)
-				imageID, err := getImageURLByMessageID(s, os.Getenv("CHANNEL_ID"), repliedMessageID)
+			if m.MessageReference.MessageID != "" {
+				repliedMessageID := m.MessageReference.MessageID
+				imageURL, _, err := getImageFromMessageID(s, os.Getenv("CHANNEL_ID"), repliedMessageID)
+				imageID := getImageId(imageURL)
 				if err != nil {
 					fmt.Println("error", err)
 					return
 				}
-				fmt.Println("error", err)
-				fmt.Println("imageid", imageID)
 				number, _ := strconv.Atoi(args[2])
-				Upscale(number, repliedMessageID, args[3])
+				Upscale(number, repliedMessageID, imageID)
 			}
 		}
 		if args[1] == "variation" {
-			if m.Message.Reference() != nil {
-				repliedMessageID := m.Message.Reference().MessageID
-				fmt.Println(repliedMessageID)
-				imageID, err := getImageURLByMessageID(s, os.Getenv("CHANNEL_ID"), repliedMessageID)
+			if m.MessageReference.MessageID != "" {
+				repliedMessageID := m.MessageReference.MessageID
+				imageURL, _, err := getImageFromMessageID(s, os.Getenv("CHANNEL_ID"), repliedMessageID)
+				imageID := getImageId(imageURL)
 				if err != nil {
 					fmt.Println("error", err)
 					return
 				}
-				fmt.Println("error", err)
-				fmt.Println("imageid", imageID)
 				number, _ := strconv.Atoi(args[2])
-				Variation(number, repliedMessageID, args[3])
+				Variation(number, repliedMessageID, imageID)
 			}
 		}
 		if args[1] == "maxupscale" {
-			if m.Message.Reference() != nil {
-				repliedMessageID := m.Message.Reference().MessageID
-				fmt.Println(repliedMessageID)
-				imageID, err := getImageURLByMessageID(s, os.Getenv("CHANNEL_ID"), repliedMessageID)
+			if m.MessageReference.MessageID != "" {
+				repliedMessageID := m.MessageReference.MessageID
+				imageURL, _, err := getImageFromMessageID(s, os.Getenv("CHANNEL_ID"), repliedMessageID)
+				imageID := getImageId(imageURL)
 				if err != nil {
 					fmt.Println("error", err)
 					return
 				}
-				fmt.Println("error", err)
-				fmt.Println("imageid", imageID)
-				number, _ := strconv.Atoi(args[2])
-				Upscale(number, repliedMessageID, args[3])
+				UpscaleMax(repliedMessageID, imageID)
 			}
 		}
 
