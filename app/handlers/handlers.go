@@ -46,36 +46,6 @@ func AddHandlers(sess *discordgo.Session) {
 
 			}
 		},
-		"reply": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-
-			options := i.ApplicationCommandData().Options
-
-			optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
-			for _, opt := range options {
-				optionMap[opt.Name] = opt
-			}
-
-			margs := make([]string, 0, len(options))
-			msgformat := "Take a look at the value(s) you entered:\n"
-
-			if option, ok := optionMap["reply"]; ok {
-				margs = append(margs, option.StringValue())
-				prompt := strings.Join(margs[:], " ")
-				if i.Type == discordgo.InteractionApplicationCommand {
-					fmt.Println("called")
-					repliedMessageID := i.ApplicationCommandData().Options[0]
-					fmt.Println("Replied message ID:", repliedMessageID)
-				}
-
-				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-					Type: discordgo.InteractionResponseChannelMessageWithSource,
-					Data: &discordgo.InteractionResponseData{
-						Content: msgformat + prompt,
-					},
-				})
-
-			}
-		},
 	}
 	const prefix = "!airbot"
 	sess.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {

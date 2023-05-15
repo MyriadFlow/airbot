@@ -16,18 +16,6 @@ func RegisterCommands() []*discordgo.ApplicationCommand {
 				},
 			},
 		},
-		{
-			Name:        "reply",
-			Description: "test command",
-			Options: []*discordgo.ApplicationCommandOption{
-				{
-					Type:        discordgo.ApplicationCommandOptionInteger,
-					Name:        "option",
-					Description: "select the number of image",
-					Required:    true,
-				},
-			},
-		},
 	}
 	return commands
 }
