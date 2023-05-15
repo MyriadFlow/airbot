@@ -157,11 +157,12 @@ func Variation(number int, messageid string, imageid string) {
 		"message_id": "` + messageid + `",
 		"application_id": "936929561302675456",
 		"session_id": "937a1c8132cd7ce3940aa8f59dedf961",
-		"data": {a
+		"data": {
 			"component_type": 2,
 			"custom_id": "MJ::JOB::variation::` + numberString + `::` + imageid + `"
 		}
 	}`
+	fmt.Println(jsonStr)
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
 	if err != nil {
 		log.Fatal(err)
