@@ -63,7 +63,7 @@ func AddHandlers(sess *discordgo.Session) {
 			return
 		}
 		if args[1] == "upscale" {
-			if m.MessageReference.MessageID != "" {
+			if m.MessageReference != nil {
 				repliedMessageID := m.MessageReference.MessageID
 				imageURL, _, err := getImageFromMessageID(s, os.Getenv("CHANNEL_ID"), repliedMessageID)
 				imageID := getImageId(imageURL)
@@ -76,7 +76,7 @@ func AddHandlers(sess *discordgo.Session) {
 			}
 		}
 		if args[1] == "variation" {
-			if m.MessageReference.MessageID != "" {
+			if m.MessageReference != nil {
 				repliedMessageID := m.MessageReference.MessageID
 				imageURL, _, err := getImageFromMessageID(s, os.Getenv("CHANNEL_ID"), repliedMessageID)
 				imageID := getImageId(imageURL)
@@ -89,7 +89,7 @@ func AddHandlers(sess *discordgo.Session) {
 			}
 		}
 		if args[1] == "maxupscale" {
-			if m.MessageReference.MessageID != "" {
+			if m.MessageReference != nil {
 				repliedMessageID := m.MessageReference.MessageID
 				imageURL, _, err := getImageFromMessageID(s, os.Getenv("CHANNEL_ID"), repliedMessageID)
 				imageID := getImageId(imageURL)
