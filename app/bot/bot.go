@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"os/signal"
-	"syscall"
 
 	"github.com/MyriadFlow/airbot/app/handlers"
 	"github.com/bwmarrin/discordgo"
@@ -36,11 +34,11 @@ func BotInit() {
 
 	// Wait here until CTRL-C or other term signal is received.
 	fmt.Println("Bot is now running. Press CTRL-C to exit.")
-	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
-	<-sc
+	// sc := make(chan os.Signal, 1)
+	// signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+	// <-sc
 
-	// Cleanly close down the Discord session.
-	sess.Close()
+	// // Cleanly close down the Discord session.
+	// sess.Close()
 
 }
