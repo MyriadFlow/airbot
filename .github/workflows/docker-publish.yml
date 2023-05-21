@@ -6,14 +6,8 @@ name: "[MAIN] Docker Image Build and Publish"
 # documentation.
 
 on:
-#   schedule:
-#     - cron: '20 9 * * *'
   push:
     branches: [ "main" ]
-    # Publish semver tags as releases.
-    tags: [ 'v*.*.*' ]
-#   pull_request:
-#     branches: [ "main" ]
 
 env:
   # Use docker.io for Docker Hub if empty
@@ -23,9 +17,11 @@ env:
 
 
 jobs:
-  build:
 
+  ghcr:
+    name: Deploy to GitHub Container Registry
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
       packages: write
@@ -34,56 +30,42 @@ jobs:
       id-token: write
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      # Install the cosign tool except on PR
-      # https://github.com/sigstore/cosign-installer
-      - name: Install cosign
-        if: github.event_name != 'pull_request'
-        uses: sigstore/cosign-installer@f3c664df7af409cb4873aa5068053ba9d61a57b6 #v2.6.0
-        with:
-          cosign-release: 'v1.13.1'
-
-
-      # Workaround: https://github.com/docker/build-push-action/issues/461
-      - name: Setup Docker buildx
-        uses: docker/setup-buildx-action@79abd3f86f79a9d68a23c75a09a9a85889262adf
-
-      # Login against a Docker registry except on PR
-      # https://github.com/docker/login-action
-      - name: Log into registry ${{ env.REGISTRY }}
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@28218f9b04b4f3f62068d7b6ce6ca5b26e35336c
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      # Extract metadata (tags, labels) for Docker
-      # https://github.com/docker/metadata-action
-      - name: Extract Docker metadata
-        id: meta
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-
-      - name: downcase REPO
-        run: echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
-
-      # Build and push Docker image with Buildx (don't push on PR)
-      # https://github.com/docker/build-push-action
-      - name: Build and push Docker image
-        run: |
-          export CURRENT_BRANCH=${GITHUB_REF#refs/heads/}
-          export TAG=$([[ $CURRENT_BRANCH == "main" ]] && echo $CURRENT_BRANCH || echo "latest")
-          export GITHUB_REF_IMAGE=ghcr.io/thelazarusnetwork/airbot:$GITHUB_SHA
-          export GITHUB_BRANCH_IMAGE=ghcr.io/thelazarusnetwork/airbot:$TAG
-          docker build -t $GITHUB_REF_IMAGE -t $GITHUB_BRANCH_IMAGE .
-          echo "Pushing Image to GitHub Container Registry"
-          docker push $GITHUB_REF_IMAGE
-          docker push $GITHUB_BRANCH_IMAGE
-
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    
+    # Install the cosign tool except on PR
+    # https://github.com/sigstore/cosign-installer
+    - name: Install cosign
+      if: github.event_name != 'pull_request'
+      uses: sigstore/cosign-installer@f3c664df7af409cb4873aa5068053ba9d61a57b6 #v2.6.0
+      with:
+        cosign-release: 'v1.13.1'
+    
+    # Workaround: https://github.com/docker/build-push-action/issues/461
+    - name: Setup Docker buildx
+      uses: docker/setup-buildx-action@79abd3f86f79a9d68a23c75a09a9a85889262adf
+      
+    - name: Login to GitHub Container Registry ${{ env.REGISTRY }}
+      if: github.event_name != 'pull_request'
+      uses: docker/login-action@v1
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ secrets.GHCR_USERNAME }}
+        password: ${{ secrets.GHCR_TOKEN }}
+      
+    - name: downcase REPO
+      run: echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
+    
+    - name: Build and Push Docker Image
+      run: |
+        export CURRENT_BRANCH=${GITHUB_REF#refs/heads/}
+        export TAG=$([[ $CURRENT_BRANCH == "main" ]] && echo $CURRENT_BRANCH || echo "latest")
+        export GITHUB_REF_IMAGE=ghcr.io/myriadflow/airbot:$GITHUB_SHA
+        export GITHUB_BRANCH_IMAGE=ghcr.io/myriadflow/airbot:$TAG
+        docker build -t $GITHUB_REF_IMAGE -t $GITHUB_BRANCH_IMAGE .
+        echo "Pushing Image to GitHub Container Registry"
+        docker push $GITHUB_REF_IMAGE
+        docker push $GITHUB_BRANCH_IMAGE
 
   dockerhub:
   
@@ -93,7 +75,7 @@ jobs:
     steps:
     
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     
     - name: Login to DockerHub
       uses: docker/login-action@v1
@@ -108,4 +90,4 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: lazarusnetwork/airbot:latest
+        tags: lazarusnetwork/sotreus:latest
