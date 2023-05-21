@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  airbot:
+    build: .
+    container_name: airbot
+    environment:
+      BOT_TOKEN: "${BOT_TOKEN}"
+      USER_TOKEN: ${USER_TOKEN}"
+      SERVER_ID: "${SERVER_ID}"
+      CHANNEL_ID: "${CHANNEL_ID}"

@@ -11,7 +11,7 @@ A discord account with subscription to Midjourney. Add the account to your desir
 Configure .env file using the sample-env, then run through docker
 
 ```
-docker compose up --build -d
+docker-compose up --build -d
 ```
 
 ## Usage/Examples
