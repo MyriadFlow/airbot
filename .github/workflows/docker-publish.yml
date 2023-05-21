@@ -87,3 +87,19 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: lazarusnetwork/airbot:latest
+      - name: Deploy on Dev Server
+        if: github.ref == 'refs/heads/main' 
+        uses: appleboy/ssh-action@v0.1.7
+        with:         
+          host: ${{ secrets.DEV_REMOTE_SERVER_ADDRESS }}
+          username: ${{ secrets.DEV_SERVER_USERNAME }}
+          key:  ${{ secrets.DEV_REMOTE_SERVER_KEY }}
+          port: ${{ secrets.DEV_SSH_PORT }}
+          script: |
+            pwd
+            cd airbot
+            podman stop airbot && podman rm airbot && podman image rm airbot
+            echo ${{ secrets.GHCR_TOKEN }} | podman login ghcr.io -u secrets.GHCR_USERNAME --password-stdin
+            podman pull ghcr.io/myriadflow/airbot:main
+            podman run --name="airbot" --env-file=.env --net=bridge -d ghcr.io/myriadflow/airbot:main
+
