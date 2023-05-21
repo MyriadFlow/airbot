@@ -1,4 +1,4 @@
-# Air-gateway
+# AirBot
 
 Bot and API Gateway to support AIR NFTs
 

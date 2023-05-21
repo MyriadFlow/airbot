@@ -14,8 +14,9 @@ import (
 func AddHandlers(sess *discordgo.Session) {
 	commands := commands.RegisterCommands()
 	registeredCommands := make([]*discordgo.ApplicationCommand, len(commands))
+	application_id := os.Getenv("APPLICATION_ID")
 	for i, v := range commands {
-		cmd, err := sess.ApplicationCommandCreate("1105859400700276847", "", v)
+		cmd, err := sess.ApplicationCommandCreate(application_id, "", v)
 		if err != nil {
 			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
 		}
