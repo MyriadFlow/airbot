@@ -9,6 +9,7 @@ import (
 
 	"github.com/MyriadFlow/airbot/app/commands"
 	"github.com/bwmarrin/discordgo"
+	"github.com/larrybattle/nonce-golang"
 )
 
 func AddHandlers(sess *discordgo.Session) {
@@ -37,7 +38,10 @@ func AddHandlers(sess *discordgo.Session) {
 			if option, ok := optionMap["prompt"]; ok {
 				margs = append(margs, option.StringValue())
 				prompt := strings.Join(margs[:], " ")
-				Generate(prompt)
+				sess_id := s.State.SessionID
+				nonce := nonce.NewToken()
+				fmt.Println("nonce", nonce)
+				Generate(prompt, sess_id)
 				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 					Type: discordgo.InteractionResponseChannelMessageWithSource,
 					Data: &discordgo.InteractionResponseData{
@@ -73,7 +77,9 @@ func AddHandlers(sess *discordgo.Session) {
 					return
 				}
 				number, _ := strconv.Atoi(args[2])
-				Upscale(number, repliedMessageID, imageID)
+				sess_id := s.State.SessionID
+				nonce := nonce.NewToken()
+				Upscale(number, repliedMessageID, imageID, sess_id, nonce)
 			}
 		}
 		if args[1] == "variation" {
@@ -86,7 +92,9 @@ func AddHandlers(sess *discordgo.Session) {
 					return
 				}
 				number, _ := strconv.Atoi(args[2])
-				Variation(number, repliedMessageID, imageID)
+				sess_id := s.State.SessionID
+				nonce := nonce.NewToken()
+				Variation(number, repliedMessageID, imageID, sess_id, nonce)
 			}
 		}
 		if args[1] == "maxupscale" {
@@ -98,7 +106,8 @@ func AddHandlers(sess *discordgo.Session) {
 					fmt.Println("error", err)
 					return
 				}
-				UpscaleMax(repliedMessageID, imageID)
+				sess_id := s.State.SessionID
+				UpscaleMax(repliedMessageID, imageID, sess_id)
 			}
 		}
 
