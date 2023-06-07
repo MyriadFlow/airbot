@@ -38,8 +38,9 @@ func AddHandlers(sess *discordgo.Session) {
 			if option, ok := optionMap["prompt"]; ok {
 				margs = append(margs, option.StringValue())
 				prompt := strings.Join(margs[:], " ")
+				pprmptTrimmed := strings.ReplaceAll(prompt, "\n", " ")
 				sess_id := s.State.SessionID
-				Generate(prompt, sess_id)
+				Generate(pprmptTrimmed, sess_id)
 				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 					Type: discordgo.InteractionResponseChannelMessageWithSource,
 					Data: &discordgo.InteractionResponseData{
