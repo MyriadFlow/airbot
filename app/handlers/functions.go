@@ -54,6 +54,7 @@ func Generate(prompt string, sess_id string) {
 			"attachments": []
 		}
 	}`
+	fmt.Println("request json:", jsonStr)
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
 	if err != nil {
 		log.Fatal(err)
@@ -94,6 +95,7 @@ func Upscale(number int, messageid string, imageid string, sess_id string, nonce
 			"custom_id": "MJ::JOB::upsample::` + numberString + `::` + imageid + `"
 		}
 	}`
+	fmt.Println("request json:", jsonStr)
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
 	if err != nil {
 		log.Fatal(err)
@@ -107,6 +109,12 @@ func Upscale(number int, messageid string, imageid string, sess_id string, nonce
 		panic(err)
 	}
 	defer resp.Body.Close()
+
+	fmt.Println("response Status:", resp.Status)
+	fmt.Println("response Headers:", resp.Header)
+	body, _ := io.ReadAll(resp.Body)
+	fmt.Println("response Body:", string(body))
+
 }
 
 func UpscaleMax(messageid string, imageid string, sess_id string) {
@@ -127,6 +135,7 @@ func UpscaleMax(messageid string, imageid string, sess_id string) {
 			"custom_id": "MJ::JOB::upsample_max::1::` + imageid + `::SOLO"
 		}
 	}`
+	fmt.Println("request json:", jsonStr)
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
 	if err != nil {
 		log.Fatal(err)
@@ -140,6 +149,12 @@ func UpscaleMax(messageid string, imageid string, sess_id string) {
 		panic(err)
 	}
 	defer resp.Body.Close()
+
+	fmt.Println("response Status:", resp.Status)
+	fmt.Println("response Headers:", resp.Header)
+	body, _ := io.ReadAll(resp.Body)
+	fmt.Println("response Body:", string(body))
+
 }
 
 func Variation(number int, messageid string, imageid string, sess_id string, nonce string) {
@@ -162,7 +177,7 @@ func Variation(number int, messageid string, imageid string, sess_id string, non
 			"custom_id": "MJ::JOB::variation::` + numberString + `::` + imageid + `"
 		}
 	}`
-	fmt.Println(jsonStr)
+	fmt.Println("request json:", jsonStr)
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
 	if err != nil {
 		log.Fatal(err)

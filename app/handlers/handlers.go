@@ -3,13 +3,13 @@ package handlers
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"strconv"
 	"strings"
 
 	"github.com/MyriadFlow/airbot/app/commands"
 	"github.com/bwmarrin/discordgo"
-	"github.com/larrybattle/nonce-golang"
 )
 
 func AddHandlers(sess *discordgo.Session) {
@@ -39,8 +39,6 @@ func AddHandlers(sess *discordgo.Session) {
 				margs = append(margs, option.StringValue())
 				prompt := strings.Join(margs[:], " ")
 				sess_id := s.State.SessionID
-				nonce := nonce.NewToken()
-				fmt.Println("nonce", nonce)
 				Generate(prompt, sess_id)
 				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 					Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -78,7 +76,7 @@ func AddHandlers(sess *discordgo.Session) {
 				}
 				number, _ := strconv.Atoi(args[2])
 				sess_id := s.State.SessionID
-				nonce := nonce.NewToken()
+				nonce := fmt.Sprint(rand.Int())
 				Upscale(number, repliedMessageID, imageID, sess_id, nonce)
 			}
 		}
@@ -93,7 +91,7 @@ func AddHandlers(sess *discordgo.Session) {
 				}
 				number, _ := strconv.Atoi(args[2])
 				sess_id := s.State.SessionID
-				nonce := nonce.NewToken()
+				nonce := fmt.Sprint(rand.Int())
 				Variation(number, repliedMessageID, imageID, sess_id, nonce)
 			}
 		}
