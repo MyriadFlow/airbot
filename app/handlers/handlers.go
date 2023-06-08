@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"strconv"
 	"strings"
@@ -37,7 +38,9 @@ func AddHandlers(sess *discordgo.Session) {
 			if option, ok := optionMap["prompt"]; ok {
 				margs = append(margs, option.StringValue())
 				prompt := strings.Join(margs[:], " ")
-				Generate(prompt)
+				pprmptTrimmed := strings.ReplaceAll(prompt, "\n", " ")
+				sess_id := s.State.SessionID
+				Generate(pprmptTrimmed, sess_id)
 				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 					Type: discordgo.InteractionResponseChannelMessageWithSource,
 					Data: &discordgo.InteractionResponseData{
@@ -73,7 +76,9 @@ func AddHandlers(sess *discordgo.Session) {
 					return
 				}
 				number, _ := strconv.Atoi(args[2])
-				Upscale(number, repliedMessageID, imageID)
+				sess_id := s.State.SessionID
+				nonce := fmt.Sprint(rand.Int())
+				Upscale(number, repliedMessageID, imageID, sess_id, nonce)
 			}
 		}
 		if args[1] == "variation" {
@@ -86,7 +91,9 @@ func AddHandlers(sess *discordgo.Session) {
 					return
 				}
 				number, _ := strconv.Atoi(args[2])
-				Variation(number, repliedMessageID, imageID)
+				sess_id := s.State.SessionID
+				nonce := fmt.Sprint(rand.Int())
+				Variation(number, repliedMessageID, imageID, sess_id, nonce)
 			}
 		}
 		if args[1] == "maxupscale" {
@@ -98,7 +105,8 @@ func AddHandlers(sess *discordgo.Session) {
 					fmt.Println("error", err)
 					return
 				}
-				UpscaleMax(repliedMessageID, imageID)
+				sess_id := s.State.SessionID
+				UpscaleMax(repliedMessageID, imageID, sess_id)
 			}
 		}
 

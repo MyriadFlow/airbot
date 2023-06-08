@@ -10,6 +10,7 @@ require (
 
 require (
 	github.com/gorilla/websocket v1.4.2 // indirect
+	github.com/larrybattle/nonce-golang v0.0.0-20150303194802-a7d5615a19fd // indirect
 	golang.org/x/crypto v0.5.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect
 )

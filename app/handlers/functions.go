@@ -12,7 +12,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-func Generate(prompt string) {
+func Generate(prompt string, sess_id string) {
 	url := "https://discord.com/api/v9/interactions"
 	server_id := os.Getenv("SERVER_ID")
 	user_token := os.Getenv("USER_TOKEN")
@@ -22,7 +22,7 @@ func Generate(prompt string) {
 		"application_id": "936929561302675456",
 		"guild_id": "` + server_id + `",
 		"channel_id": "` + channel_id + `",
-		"session_id": "2fb980f65e5c9a77c96ca01f2c242cf6",
+		"session_id": "` + sess_id + `",
 		"data": {
 			"version": "1077969938624553050",
 			"id": "938956540159881230",
@@ -54,6 +54,7 @@ func Generate(prompt string) {
 			"attachments": []
 		}
 	}`
+	fmt.Println("request json:", jsonStr)
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
 	if err != nil {
 		log.Fatal(err)
@@ -74,7 +75,7 @@ func Generate(prompt string) {
 	fmt.Println("response Body:", string(body))
 }
 
-func Upscale(number int, messageid string, imageid string) {
+func Upscale(number int, messageid string, imageid string, sess_id string, nonce string) {
 	numberString := strconv.Itoa(number)
 	url := "https://discord.com/api/v9/interactions"
 	server_id := os.Getenv("SERVER_ID")
@@ -82,18 +83,19 @@ func Upscale(number int, messageid string, imageid string) {
 	channel_id := os.Getenv("CHANNEL_ID")
 	jsonStr := `{
 		"type": 3,
-		"nonce": "1106909041919000576",
+		"nonce": "` + nonce + `",
 		"guild_id": "` + server_id + `",
 		"channel_id": "` + channel_id + `",
 		"message_flags": 0,
 		"message_id": "` + messageid + `",
 		"application_id": "936929561302675456",
-		"session_id": "937a1c8132cd7ce3940aa8f59dedf961",
+		"session_id": "` + sess_id + `",
 		"data": {
 			"component_type": 2,
 			"custom_id": "MJ::JOB::upsample::` + numberString + `::` + imageid + `"
 		}
 	}`
+	fmt.Println("request json:", jsonStr)
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
 	if err != nil {
 		log.Fatal(err)
@@ -107,9 +109,15 @@ func Upscale(number int, messageid string, imageid string) {
 		panic(err)
 	}
 	defer resp.Body.Close()
+
+	fmt.Println("response Status:", resp.Status)
+	fmt.Println("response Headers:", resp.Header)
+	body, _ := io.ReadAll(resp.Body)
+	fmt.Println("response Body:", string(body))
+
 }
 
-func UpscaleMax(messageid string, imageid string) {
+func UpscaleMax(messageid string, imageid string, sess_id string) {
 	url := "https://discord.com/api/v9/interactions"
 	server_id := os.Getenv("SERVER_ID")
 	user_token := os.Getenv("USER_TOKEN")
@@ -121,12 +129,13 @@ func UpscaleMax(messageid string, imageid string) {
 		"message_flags": 0,
 		"message_id": "` + messageid + `",
 		"application_id": "936929561302675456",
-		"session_id": "1f3dbdf09efdf93d81a3a6420882c92c",
+		"session_id": "` + sess_id + `",
 		"data": {
 			"component_type": 2,
 			"custom_id": "MJ::JOB::upsample_max::1::` + imageid + `::SOLO"
 		}
 	}`
+	fmt.Println("request json:", jsonStr)
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
 	if err != nil {
 		log.Fatal(err)
@@ -140,9 +149,15 @@ func UpscaleMax(messageid string, imageid string) {
 		panic(err)
 	}
 	defer resp.Body.Close()
+
+	fmt.Println("response Status:", resp.Status)
+	fmt.Println("response Headers:", resp.Header)
+	body, _ := io.ReadAll(resp.Body)
+	fmt.Println("response Body:", string(body))
+
 }
 
-func Variation(number int, messageid string, imageid string) {
+func Variation(number int, messageid string, imageid string, sess_id string, nonce string) {
 	numberString := strconv.Itoa(number)
 	url := "https://discord.com/api/v9/interactions"
 	server_id := os.Getenv("SERVER_ID")
@@ -150,19 +165,19 @@ func Variation(number int, messageid string, imageid string) {
 	channel_id := os.Getenv("CHANNEL_ID")
 	jsonStr := `{
 		"type": 3,
-		"nonce": "1106909401836421120",
+		"nonce": "` + nonce + `",
 		"guild_id": "` + server_id + `",
 		"channel_id": "` + channel_id + `",
 		"message_flags": 0,
 		"message_id": "` + messageid + `",
 		"application_id": "936929561302675456",
-		"session_id": "937a1c8132cd7ce3940aa8f59dedf961",
+		"session_id": "` + sess_id + `",
 		"data": {
 			"component_type": 2,
 			"custom_id": "MJ::JOB::variation::` + numberString + `::` + imageid + `"
 		}
 	}`
-	fmt.Println(jsonStr)
+	fmt.Println("request json:", jsonStr)
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
 	if err != nil {
 		log.Fatal(err)
