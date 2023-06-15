@@ -52,7 +52,7 @@ func Generate(prompt string, sess_id string, nonce string) {
 				}]
 			},
 			"attachments": []
-		}
+		},
 		"nonce": "` + nonce + `"
 	}`
 	fmt.Println("request json:", jsonStr)
