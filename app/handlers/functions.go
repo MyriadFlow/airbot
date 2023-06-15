@@ -12,7 +12,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-func Generate(prompt string, sess_id string) {
+func Generate(prompt string, sess_id string, nonce string) {
 	url := "https://discord.com/api/v9/interactions"
 	server_id := os.Getenv("SERVER_ID")
 	user_token := os.Getenv("USER_TOKEN")
@@ -24,7 +24,7 @@ func Generate(prompt string, sess_id string) {
 		"channel_id": "` + channel_id + `",
 		"session_id": "` + sess_id + `",
 		"data": {
-			"version": "1077969938624553050",
+			"version": "1118961510123847772",
 			"id": "938956540159881230",
 			"name": "imagine",
 			"type": 1,
@@ -36,14 +36,14 @@ func Generate(prompt string, sess_id string) {
 			"application_command": {
 				"id": "938956540159881230",
 				"application_id": "936929561302675456",
-				"version": "1077969938624553050",
-				"default_permission": true,
+				"version": "1118961510123847772",
 				"default_member_permissions": null,
 				"type": 1,
 				"nsfw": false,
 				"name": "imagine",
 				"description": "Create images with Midjourney",
 				"dm_permission": true,
+				"contexts": [0, 1, 2],
 				"options": [{
 					"type": 3,
 					"name": "prompt",
@@ -53,6 +53,7 @@ func Generate(prompt string, sess_id string) {
 			},
 			"attachments": []
 		}
+		"nonce": "` + nonce + `"
 	}`
 	fmt.Println("request json:", jsonStr)
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
