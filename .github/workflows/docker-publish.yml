@@ -98,8 +98,8 @@ jobs:
           script: |
             pwd
             cd airbot
-            podman stop airbot && podman rm airbot && podman image rm airbot
+            sudo podman stop airbot && sudo podman rm airbot && sudo podman image rm airbot
             echo ${{ secrets.GHCR_TOKEN }} | podman login ghcr.io -u secrets.GHCR_USERNAME --password-stdin
-            podman pull ghcr.io/myriadflow/airbot:main
-            podman run --name="airbot" --env-file=.env --net=bridge -d ghcr.io/myriadflow/airbot:main
+            sudo podman pull ghcr.io/myriadflow/airbot:main
+            sudo podman run --name="airbot" --env-file=.env --net=bridge -d ghcr.io/myriadflow/airbot:main
 
