@@ -24,7 +24,7 @@ func Generate(prompt string, sess_id string, nonce string) {
 		"channel_id": "` + channel_id + `",
 		"session_id": "` + sess_id + `",
 		"data": {
-			"version": "1118961510123847772",
+			"version": "1166847114203123795",
 			"id": "938956540159881230",
 			"name": "imagine",
 			"type": 1,
@@ -35,25 +35,29 @@ func Generate(prompt string, sess_id string, nonce string) {
 			}],
 			"application_command": {
 				"id": "938956540159881230",
+				"type":1,
 				"application_id": "936929561302675456",
-				"version": "1118961510123847772",
-				"default_member_permissions": null,
-				"type": 1,
-				"nsfw": false,
+				"version": "1166847114203123795",
 				"name": "imagine",
 				"description": "Create images with Midjourney",
-				"dm_permission": true,
-				"contexts": [0, 1, 2],
 				"options": [{
 					"type": 3,
 					"name": "prompt",
 					"description": "The prompt to imagine",
-					"required": true
-				}]
+					"required": true,
+					"description_localized": "The prompt to imagine",
+					"name_localized": "prompt"		  
+				}],
+				"integration_types": [
+			    	0
+		      ],
+			  "description_localized": "Create images with Midjourney",
+			  "name_localized": "imagine"		
 			},
 			"attachments": []
 		},
-		"nonce": "` + nonce + `"
+		"nonce": "` + nonce + `",
+		"analytics_location": "slash_ui"
 	}`
 	fmt.Println("request json:", jsonStr)
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
