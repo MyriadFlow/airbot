@@ -143,6 +143,36 @@ func AddHandlers(sess *discordgo.Session) {
 				VaryStrong(number, repliedMessageID, imageID, sess_id, nonce)
 			}
 		}
+		if args[1] == "upscale2x" {
+			if m.MessageReference != nil {
+				repliedMessageID := m.MessageReference.MessageID
+				imageURL, _, err := getImageFromMessageID(s, os.Getenv("CHANNEL_ID"), repliedMessageID)
+				imageID := getImageId(imageURL)
+				if err != nil {
+					fmt.Println("error", err)
+					return
+				}
+				number, _ := strconv.Atoi(args[2])
+				sess_id := s.State.SessionID
+				nonce := fmt.Sprint(rand.Int())
+				Upscale2x(number, repliedMessageID, imageID, sess_id, nonce)
+			}
+		}
+		if args[1] == "upscale4x" {
+			if m.MessageReference != nil {
+				repliedMessageID := m.MessageReference.MessageID
+				imageURL, _, err := getImageFromMessageID(s, os.Getenv("CHANNEL_ID"), repliedMessageID)
+				imageID := getImageId(imageURL)
+				if err != nil {
+					fmt.Println("error", err)
+					return
+				}
+				number, _ := strconv.Atoi(args[2])
+				sess_id := s.State.SessionID
+				nonce := fmt.Sprint(rand.Int())
+				Upscale4x(number, repliedMessageID, imageID, sess_id, nonce)
+			}
+		}
 
 		if args[1] == "maxupscale" {
 			if m.MessageReference != nil {
