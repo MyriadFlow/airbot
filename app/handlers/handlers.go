@@ -106,7 +106,7 @@ func AddHandlers(sess *discordgo.Session) {
 					fmt.Println("error", err)
 					return
 				}
-				number, _ := strconv.Atoi(args[2])
+				number := 1
 				sess_id := s.State.SessionID
 				nonce := fmt.Sprint(rand.Int())
 				VarySubtle(number, repliedMessageID, imageID, sess_id, nonce)
@@ -121,7 +121,7 @@ func AddHandlers(sess *discordgo.Session) {
 					fmt.Println("error", err)
 					return
 				}
-				number, _ := strconv.Atoi(args[2])
+				number := 1
 				sess_id := s.State.SessionID
 				nonce := fmt.Sprint(rand.Int())
 				VaryRegion(number, repliedMessageID, imageID, sess_id, nonce)
@@ -137,7 +137,7 @@ func AddHandlers(sess *discordgo.Session) {
 					fmt.Println("error", err)
 					return
 				}
-				number, _ := strconv.Atoi(args[2])
+				number := 1
 				sess_id := s.State.SessionID
 				nonce := fmt.Sprint(rand.Int())
 				VaryStrong(number, repliedMessageID, imageID, sess_id, nonce)
@@ -152,7 +152,7 @@ func AddHandlers(sess *discordgo.Session) {
 					fmt.Println("error", err)
 					return
 				}
-				number, _ := strconv.Atoi(args[2])
+				number := 1
 				sess_id := s.State.SessionID
 				nonce := fmt.Sprint(rand.Int())
 				Upscale2x(number, repliedMessageID, imageID, sess_id, nonce)
@@ -167,7 +167,7 @@ func AddHandlers(sess *discordgo.Session) {
 					fmt.Println("error", err)
 					return
 				}
-				number, _ := strconv.Atoi(args[2])
+				number := 1
 				sess_id := s.State.SessionID
 				nonce := fmt.Sprint(rand.Int())
 				Upscale4x(number, repliedMessageID, imageID, sess_id, nonce)
