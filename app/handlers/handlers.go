@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/MyriadFlow/airbot/app/commands"
+	"github.com/MyriadFlow/airbot/utils/chatgpt"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -49,6 +50,38 @@ func AddHandlers(sess *discordgo.Session) {
 					},
 				})
 
+			}
+		},
+		"gpt": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			options := i.ApplicationCommandData().Options
+
+			optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
+			for _, opt := range options {
+				optionMap[opt.Name] = opt
+			}
+
+			margs := make([]string, 0, len(options))
+			msgformat := "Take a look at your response:\n"
+
+			if option, ok := optionMap["prompt"]; ok {
+				margs = append(margs, option.StringValue())
+				prompt := strings.Join(margs[:], " ")
+				res, err := chatgpt.GetChatGPTResponse(prompt)
+				if err != nil {
+					fmt.Println("error in generating response:", err.Error())
+					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+						Type: discordgo.InteractionResponseChannelMessageWithSource,
+						Data: &discordgo.InteractionResponseData{
+							Content: "error generating response",
+						},
+					})
+				}
+				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Content: msgformat + res,
+					},
+				})
 			}
 		},
 	}
