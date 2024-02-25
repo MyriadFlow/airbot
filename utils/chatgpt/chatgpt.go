@@ -16,8 +16,7 @@ func GetChatGPTResponse(prompt string) (string, error) {
 	client := resty.New()
 	var result response
 	request := request{
-		Model:     "gpt-4",
-		MaxTokens: 100,
+		Model: "gpt-4",
 		Messages: []struct {
 			Role    string `json:"role"`
 			Content string `json:"content"`
