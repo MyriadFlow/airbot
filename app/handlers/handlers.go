@@ -23,6 +23,7 @@ func AddHandlers(sess *discordgo.Session) {
 			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
 		}
 		registeredCommands[i] = cmd
+		fmt.Println("command registered: ", cmd.Name)
 	}
 	commandHandlers := map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"generate": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
