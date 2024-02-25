@@ -68,6 +68,8 @@ func AddHandlers(sess *discordgo.Session) {
 				margs = append(margs, option.StringValue())
 				prompt := strings.Join(margs[:], " ")
 				res, err := chatgpt.GetChatGPTResponse(prompt)
+				msg := msgformat + res
+				fmt.Println("reply: ", msg)
 				if err != nil {
 					fmt.Println("error in generating response:", err.Error())
 					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
@@ -80,7 +82,7 @@ func AddHandlers(sess *discordgo.Session) {
 				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 					Type: discordgo.InteractionResponseChannelMessageWithSource,
 					Data: &discordgo.InteractionResponseData{
-						Content: msgformat + res,
+						Content: msg,
 					},
 				})
 			}
