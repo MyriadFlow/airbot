@@ -16,6 +16,18 @@ func RegisterCommands() []*discordgo.ApplicationCommand {
 				},
 			},
 		},
+		{
+			Name:        "gpt",
+			Description: "Generate text with gpt-4",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "prompt",
+					Description: "prompt to generate text",
+					Required:    true,
+				},
+			},
+		},
 	}
 	return commands
 }
