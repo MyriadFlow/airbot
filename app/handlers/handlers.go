@@ -99,7 +99,7 @@ func AddHandlers(sess *discordgo.Session) {
 					},
 				})
 			}
-			repliedMessageID := i.Message.ReferencedMessage.ID
+			repliedMessageID := i.Message.MessageReference.MessageID
 			imageURL, _, err := getImageFromMessageID(s, os.Getenv("CHANNEL_ID"), repliedMessageID)
 			if err != nil {
 				fmt.Println("error in upscaling image:", err.Error())
