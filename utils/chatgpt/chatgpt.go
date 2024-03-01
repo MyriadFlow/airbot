@@ -1,6 +1,7 @@
 package chatgpt
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -39,7 +40,10 @@ func GetChatGPTResponse(prompt string) (string, error) {
 	}
 
 	fmt.Println("POST Response:", resp.Status())
-
+	fmt.Println(len(result.Choices) >= 1)
+	if len(result.Choices) < 1 {
+		return "", errors.New("failed to fetch response")
+	}
 	return result.Choices[0].Message.Content, nil
 }
 
