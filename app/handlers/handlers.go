@@ -88,7 +88,17 @@ func AddHandlers(sess *discordgo.Session) {
 		},
 		"upscale": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			options := i.ApplicationCommandData().Options
-			choice := options[0].IntValue()
+			choice := options[0].StringValue()
+			choiceInt, err := strconv.Atoi(choice)
+			if err != nil {
+				fmt.Println("error in upscaling image:", err.Error())
+				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Content: "error upscaling image",
+					},
+				})
+			}
 			repliedMessageID := i.Message.ReferencedMessage.ID
 			imageURL, _, err := getImageFromMessageID(s, os.Getenv("CHANNEL_ID"), repliedMessageID)
 			if err != nil {
@@ -103,7 +113,7 @@ func AddHandlers(sess *discordgo.Session) {
 
 			sess_id := s.State.SessionID
 			nonce := fmt.Sprint(rand.Int())
-			err = Upscale(int(choice), repliedMessageID, imageURL, sess_id, nonce)
+			err = Upscale(int(choiceInt), repliedMessageID, imageURL, sess_id, nonce)
 			if err != nil {
 				fmt.Println("error in upscaling image:", err.Error())
 				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
