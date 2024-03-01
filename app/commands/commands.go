@@ -40,19 +40,19 @@ func RegisterCommands() []*discordgo.ApplicationCommand {
 					Choices: []*discordgo.ApplicationCommandOptionChoice{
 						{
 							Name:  "1",
-							Value: 1,
+							Value: "1",
 						},
 						{
 							Name:  "2",
-							Value: 2,
+							Value: "2",
 						},
 						{
 							Name:  "3",
-							Value: 3,
+							Value: "3",
 						},
 						{
 							Name:  "4",
-							Value: 4,
+							Value: "4",
 						},
 					},
 				},
