@@ -209,5 +209,20 @@ func AddHandlers(sess *discordgo.Session) {
 				UpscaleCreative(number, repliedMessageID, imageID, sess_id, nonce)
 			}
 		}
+		if args[1] == "help" {
+			const helpMessage = "Available commands:\n" +
+				"1. !airbot generate <prompt>: Generates text based on the provided prompt.\n" +
+				"2. !airbot gpt <prompt>: Generates a response using GPT based on the provided prompt.\n" +
+				"3. !airbot upscale <number> (in reply to an image): Upscales the replied image by the specified factor.\n" +
+				"4. !airbot variation <number> (in reply to an image): Creates variations of the replied image.\n" +
+				"5. !airbot subtle (in reply to an image): Creates a subtly varied version of the replied image.\n" +
+				"6. !airbot region (in reply to an image): Creates a regionally varied version of the replied image.\n" +
+				"7. !airbot strong (in reply to an image): Creates a strongly varied version of the replied image.\n" +
+				"8. !airbot upscaleSubtle (in reply to an image): Upscales the replied image subtly.\n" +
+				"9. !airbot upscaleCreative (in reply to an image): Upscales the replied image creatively."
+
+			s.ChannelMessageSend(m.ChannelID, helpMessage)
+			return
+		}
 	})
 }
