@@ -179,7 +179,7 @@ func AddHandlers(sess *discordgo.Session) {
 				VaryStrong(number, repliedMessageID, imageID, sess_id, nonce)
 			}
 		}
-		if args[1] == "upscale2x" {
+		if args[1] == "upscaleSubtle" {
 			if m.MessageReference != nil {
 				repliedMessageID := m.MessageReference.MessageID
 				imageURL, _, err := getImageFromMessageID(s, os.Getenv("CHANNEL_ID"), repliedMessageID)
@@ -191,10 +191,10 @@ func AddHandlers(sess *discordgo.Session) {
 				number := 1
 				sess_id := s.State.SessionID
 				nonce := fmt.Sprint(rand.Int())
-				Upscale2x(number, repliedMessageID, imageID, sess_id, nonce)
+				UpscaleSubtle(number, repliedMessageID, imageID, sess_id, nonce)
 			}
 		}
-		if args[1] == "upscale4x" {
+		if args[1] == "upscaleCreative" {
 			if m.MessageReference != nil {
 				repliedMessageID := m.MessageReference.MessageID
 				imageURL, _, err := getImageFromMessageID(s, os.Getenv("CHANNEL_ID"), repliedMessageID)
@@ -206,23 +206,8 @@ func AddHandlers(sess *discordgo.Session) {
 				number := 1
 				sess_id := s.State.SessionID
 				nonce := fmt.Sprint(rand.Int())
-				Upscale4x(number, repliedMessageID, imageID, sess_id, nonce)
+				UpscaleCreative(number, repliedMessageID, imageID, sess_id, nonce)
 			}
 		}
-
-		if args[1] == "maxupscale" {
-			if m.MessageReference != nil {
-				repliedMessageID := m.MessageReference.MessageID
-				imageURL, _, err := getImageFromMessageID(s, os.Getenv("CHANNEL_ID"), repliedMessageID)
-				imageID := getImageId(imageURL)
-				if err != nil {
-					fmt.Println("error", err)
-					return
-				}
-				sess_id := s.State.SessionID
-				UpscaleMax(repliedMessageID, imageID, sess_id)
-			}
-		}
-
 	})
 }

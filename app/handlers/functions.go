@@ -121,47 +121,6 @@ func Upscale(number int, messageid string, imageid string, sess_id string, nonce
 	fmt.Println("response Body:", string(body))
 
 }
-
-func UpscaleMax(messageid string, imageid string, sess_id string) {
-	url := "https://discord.com/api/v9/interactions"
-	server_id := os.Getenv("SERVER_ID")
-	user_token := os.Getenv("USER_TOKEN")
-	channel_id := os.Getenv("CHANNEL_ID")
-	jsonStr := `{
-		"type": 3,
-		"guild_id": "` + server_id + `",
-		"channel_id": "` + channel_id + `",
-		"message_flags": 0,
-		"message_id": "` + messageid + `",
-		"application_id": "936929561302675456",
-		"session_id": "` + sess_id + `",
-		"data": {
-			"component_type": 2,
-			"custom_id": "MJ::JOB::upsample_max::1::` + imageid + `::SOLO"
-		}
-	}`
-	fmt.Println("request json:", jsonStr)
-	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
-	if err != nil {
-		log.Fatal(err)
-	}
-	req.Header.Set("authorization", user_token)
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		panic(err)
-	}
-	defer resp.Body.Close()
-
-	fmt.Println("response Status:", resp.Status)
-	fmt.Println("response Headers:", resp.Header)
-	body, _ := io.ReadAll(resp.Body)
-	fmt.Println("response Body:", string(body))
-
-}
-
 func Variation(number int, messageid string, imageid string, sess_id string, nonce string) {
 	numberString := strconv.Itoa(number)
 	url := "https://discord.com/api/v9/interactions"
@@ -328,7 +287,7 @@ func VaryRegion(number int, messageid string, imageid string, sess_id string, no
 
 }
 
-func Upscale4x(number int, messageid string, imageid string, sess_id string, nonce string) {
+func UpscaleSubtle(number int, messageid string, imageid string, sess_id string, nonce string) {
 	numberString := strconv.Itoa(number)
 	url := "https://discord.com/api/v9/interactions"
 	server_id := os.Getenv("SERVER_ID")
@@ -345,7 +304,7 @@ func Upscale4x(number int, messageid string, imageid string, sess_id string, non
 		"session_id": "` + sess_id + `",
 		"data": {
 			"component_type": 2,
-			"custom_id": "MJ::JOB::upsample_v5_4x::` + numberString + `::` + imageid + `::SOLO"
+			"custom_id": "MJ::JOB::upsample_v6_2x_subtle::` + numberString + `::` + imageid + `::SOLO"
 		}
 	}`
 	fmt.Println("request json:", jsonStr)
@@ -370,7 +329,7 @@ func Upscale4x(number int, messageid string, imageid string, sess_id string, non
 
 }
 
-func Upscale2x(number int, messageid string, imageid string, sess_id string, nonce string) {
+func UpscaleCreative(number int, messageid string, imageid string, sess_id string, nonce string) {
 	numberString := strconv.Itoa(number)
 	url := "https://discord.com/api/v9/interactions"
 	server_id := os.Getenv("SERVER_ID")
@@ -387,7 +346,7 @@ func Upscale2x(number int, messageid string, imageid string, sess_id string, non
 		"session_id": "` + sess_id + `",
 		"data": {
 			"component_type": 2,
-			"custom_id": "MJ::JOB::upsample_v5_2x::` + numberString + `::` + imageid + `::SOLO"
+			"custom_id": "MJ::JOB::upsample_v6_2x_creative::` + numberString + `::` + imageid + `::SOLO"
 		}
 	}`
 	fmt.Println("request json:", jsonStr)
