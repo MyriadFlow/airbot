@@ -28,7 +28,6 @@ func AddHandlers(sess *discordgo.Session) {
 	commandHandlers := map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"generate": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			options := i.ApplicationCommandData().Options
-
 			optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
 			for _, opt := range options {
 				optionMap[opt.Name] = opt
@@ -83,6 +82,34 @@ func AddHandlers(sess *discordgo.Session) {
 					Type: discordgo.InteractionResponseChannelMessageWithSource,
 					Data: &discordgo.InteractionResponseData{
 						Content: msg,
+					},
+				})
+			}
+		},
+		"upscale": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			options := i.ApplicationCommandData().Options
+			choice := options[0].IntValue()
+			repliedMessageID := i.Message.ReferencedMessage.ID
+			imageURL, _, err := getImageFromMessageID(s, os.Getenv("CHANNEL_ID"), repliedMessageID)
+			if err != nil {
+				fmt.Println("error in upscaling image:", err.Error())
+				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Content: "error upscaling image",
+					},
+				})
+			}
+
+			sess_id := s.State.SessionID
+			nonce := fmt.Sprint(rand.Int())
+			err = Upscale(int(choice), repliedMessageID, imageURL, sess_id, nonce)
+			if err != nil {
+				fmt.Println("error in upscaling image:", err.Error())
+				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Content: "error upscaling image",
 					},
 				})
 			}

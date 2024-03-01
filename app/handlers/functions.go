@@ -80,7 +80,7 @@ func Generate(prompt string, sess_id string, nonce string) {
 	fmt.Println("response Body:", string(body))
 }
 
-func Upscale(number int, messageid string, imageid string, sess_id string, nonce string) {
+func Upscale(number int, messageid string, imageid string, sess_id string, nonce string) error {
 	numberString := strconv.Itoa(number)
 	url := "https://discord.com/api/v9/interactions"
 	server_id := os.Getenv("SERVER_ID")
@@ -103,7 +103,7 @@ func Upscale(number int, messageid string, imageid string, sess_id string, nonce
 	fmt.Println("request json:", jsonStr)
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	req.Header.Set("authorization", user_token)
 	req.Header.Set("Content-Type", "application/json")
@@ -111,7 +111,7 @@ func Upscale(number int, messageid string, imageid string, sess_id string, nonce
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer resp.Body.Close()
 
@@ -119,6 +119,7 @@ func Upscale(number int, messageid string, imageid string, sess_id string, nonce
 	fmt.Println("response Headers:", resp.Header)
 	body, _ := io.ReadAll(resp.Body)
 	fmt.Println("response Body:", string(body))
+	return nil
 
 }
 func Variation(number int, messageid string, imageid string, sess_id string, nonce string) {
