@@ -25,6 +25,8 @@ func AddHandlers(sess *discordgo.Session) {
 		registeredCommands[i] = cmd
 		fmt.Println("command registered: ", cmd.Name)
 	}
+
+	defer sess.Close()
 	commandHandlers := map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"generate": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			options := i.ApplicationCommandData().Options
@@ -50,78 +52,6 @@ func AddHandlers(sess *discordgo.Session) {
 					},
 				})
 
-			}
-		},
-		"gpt": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			options := i.ApplicationCommandData().Options
-
-			optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
-			for _, opt := range options {
-				optionMap[opt.Name] = opt
-			}
-
-			margs := make([]string, 0, len(options))
-			msgformat := "Take a look at your response:\n"
-
-			if option, ok := optionMap["prompt"]; ok {
-				margs = append(margs, option.StringValue())
-				prompt := strings.Join(margs[:], " ")
-				res, err := chatgpt.GetChatGPTResponse(prompt)
-				msg := msgformat + res
-				fmt.Println("reply: ", msg)
-				if err != nil {
-					fmt.Println("error in generating response:", err.Error())
-					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-						Type: discordgo.InteractionResponseChannelMessageWithSource,
-						Data: &discordgo.InteractionResponseData{
-							Content: "error generating response",
-						},
-					})
-				}
-				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-					Type: discordgo.InteractionResponseChannelMessageWithSource,
-					Data: &discordgo.InteractionResponseData{
-						Content: msg,
-					},
-				})
-			}
-		},
-		"upscale": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			options := i.ApplicationCommandData().Options
-			choice := options[0].StringValue()
-			choiceInt, err := strconv.Atoi(choice)
-			if err != nil {
-				fmt.Println("error in upscaling image:", err.Error())
-				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-					Type: discordgo.InteractionResponseChannelMessageWithSource,
-					Data: &discordgo.InteractionResponseData{
-						Content: "error upscaling image",
-					},
-				})
-			}
-			repliedMessageID := i.Message.MessageReference.MessageID
-			imageURL, _, err := getImageFromMessageID(s, os.Getenv("CHANNEL_ID"), repliedMessageID)
-			if err != nil {
-				fmt.Println("error in upscaling image:", err.Error())
-				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-					Type: discordgo.InteractionResponseChannelMessageWithSource,
-					Data: &discordgo.InteractionResponseData{
-						Content: "error upscaling image",
-					},
-				})
-			}
-
-			sess_id := s.State.SessionID
-			nonce := fmt.Sprint(rand.Int())
-			err = Upscale(int(choiceInt), repliedMessageID, imageURL, sess_id, nonce)
-			if err != nil {
-				fmt.Println("error in upscaling image:", err.Error())
-				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-					Type: discordgo.InteractionResponseChannelMessageWithSource,
-					Data: &discordgo.InteractionResponseData{
-						Content: "error upscaling image",
-					},
-				})
 			}
 		},
 	}
@@ -246,6 +176,35 @@ func AddHandlers(sess *discordgo.Session) {
 				UpscaleCreative(number, repliedMessageID, imageID, sess_id, nonce)
 			}
 		}
+		if args[1] == "gpt" {
+			parts := strings.SplitN(m.Content, " ", 3)
+			if len(parts) < 3 {
+				s.ChannelMessageSend(m.ChannelID, "Invalid format. Usage: !airbot gpt <prompt>")
+				return
+			}
+			prompt := parts[2]
+
+			res, err := chatgpt.GetChatGPTResponse(prompt)
+			if err != nil {
+				fmt.Println("Error generating response:", err.Error())
+				s.ChannelMessageSend(m.ChannelID, "Error generating response.")
+				return
+			}
+			fmt.Println("res", res)
+			// Truncate the response if it exceeds Discord's maximum message length
+			if len(res) > 2000 {
+				res = res[:2000]
+			}
+			reply := &discordgo.MessageReference{
+				MessageID: m.ID,
+			}
+			_, err = s.ChannelMessageSendReply(m.ChannelID, res, reply)
+			if err != nil {
+				fmt.Println("Error sending message reply:", err.Error())
+				return
+			}
+		}
+
 		if args[1] == "help" {
 			const helpMessage = "Available commands:\n" +
 				"1. /generate <prompt>: Generates text based on the provided prompt.\n" +
@@ -262,7 +221,6 @@ func AddHandlers(sess *discordgo.Session) {
 				MessageID: m.ID,
 			}
 			s.ChannelMessageSendReply(m.ChannelID, helpMessage, reply)
-			return
 		}
 	})
 }

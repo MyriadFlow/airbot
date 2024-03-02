@@ -1,23 +1,20 @@
 package chatgpt
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
-	"fmt"
+	"net/http"
 	"os"
-
-	"github.com/go-resty/resty/v2"
-)
-
-var (
-	chatGPTAPIKey = os.Getenv("OPENAI_KEY")
-	chatGPTURL    = "https://api.openai.com/v1/chat/completions"
 )
 
 func GetChatGPTResponse(prompt string) (string, error) {
-	client := resty.New()
-	var result response
-	request := request{
-		Model: "gpt-4",
+	var (
+		chatGPTAPIKey = os.Getenv("OPENAI_KEY")
+		chatGPTURL    = "https://api.openai.com/v1/chat/completions"
+	)
+	requestData := request{
+		Model: "gpt-4-turbo-preview",
 		Messages: []struct {
 			Role    string `json:"role"`
 			Content string `json:"content"`
@@ -29,18 +26,35 @@ func GetChatGPTResponse(prompt string) (string, error) {
 		},
 	}
 
-	resp, err := client.R().
-		SetHeader("Content-Type", "application/json").
-		SetHeader("Authorization", "Bearer "+chatGPTAPIKey).
-		SetBody(request).SetResult(&result).
-		Post(chatGPTURL)
-
+	requestBody, err := json.Marshal(requestData)
 	if err != nil {
 		return "", err
 	}
 
-	fmt.Println("POST Response:", resp.Status())
-	fmt.Println(len(result.Choices) >= 1)
+	req, err := http.NewRequest("POST", chatGPTURL, bytes.NewBuffer(requestBody))
+	if err != nil {
+		return "", err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+chatGPTAPIKey)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", errors.New("failed to fetch response. status code: " + resp.Status)
+	}
+
+	var result response
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		return "", err
+	}
 	if len(result.Choices) < 1 {
 		return "", errors.New("failed to fetch response")
 	}
@@ -48,9 +62,8 @@ func GetChatGPTResponse(prompt string) (string, error) {
 }
 
 type request struct {
-	Model     string `json:"model"`
-	MaxTokens int    `json:"max_tokens"`
-	Messages  []struct {
+	Model    string `json:"model"`
+	Messages []struct {
 		Role    string `json:"role"`
 		Content string `json:"content"`
 	} `json:"messages"`

@@ -33,5 +33,4 @@ func Init() {
 	<-sc
 	fmt.Println("shutting down")
 	// Cleanly close down the Discord session.
-	sess.Close()
 }
