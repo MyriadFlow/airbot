@@ -16,6 +16,10 @@ func RegisterCommands() []*discordgo.ApplicationCommand {
 				},
 			},
 		},
+		{
+			Name:        "help",
+			Description: "Display available commands",
+		},
 	}
 	return commands
 }
