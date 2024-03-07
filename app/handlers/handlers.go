@@ -97,6 +97,16 @@ func AddHandlers(sess *discordgo.Session) {
 					fmt.Println("error", err)
 					return
 				}
+				if len(args) <= 2 {
+					reply := &discordgo.MessageReference{
+						MessageID: m.ID,
+					}
+					_, err = s.ChannelMessageSendReply(m.ChannelID, "Provide number of image to upscale", reply)
+					if err != nil {
+						fmt.Println("Error sending message reply:", err.Error())
+						return
+					}
+				}
 				number, _ := strconv.Atoi(args[2])
 				sess_id := s.State.SessionID
 				nonce := fmt.Sprint(rand.Int())
@@ -111,6 +121,16 @@ func AddHandlers(sess *discordgo.Session) {
 				if err != nil {
 					fmt.Println("error", err)
 					return
+				}
+				if len(args) <= 2 {
+					reply := &discordgo.MessageReference{
+						MessageID: m.ID,
+					}
+					_, err = s.ChannelMessageSendReply(m.ChannelID, "Provide number of image to variate", reply)
+					if err != nil {
+						fmt.Println("Error sending message reply:", err.Error())
+						return
+					}
 				}
 				number, _ := strconv.Atoi(args[2])
 				sess_id := s.State.SessionID
@@ -198,6 +218,34 @@ func AddHandlers(sess *discordgo.Session) {
 			parts := strings.SplitN(m.Content, " ", 3)
 			if len(parts) < 3 {
 				s.ChannelMessageSend(m.ChannelID, "Invalid format. Usage: !airbot gpt <prompt>")
+				return
+			}
+			prompt := parts[2]
+
+			res, err := chatgpt.GetChatGPTResponse(prompt)
+			if err != nil {
+				fmt.Println("Error generating response:", err.Error())
+				s.ChannelMessageSend(m.ChannelID, "Error generating response.")
+				return
+			}
+			fmt.Println("res", res)
+			// Truncate the response if it exceeds Discord's maximum message length
+			if len(res) > 2000 {
+				res = res[:2000]
+			}
+			reply := &discordgo.MessageReference{
+				MessageID: m.ID,
+			}
+			_, err = s.ChannelMessageSendReply(m.ChannelID, res, reply)
+			if err != nil {
+				fmt.Println("Error sending message reply:", err.Error())
+				return
+			}
+		}
+		if args[1] == "dalle3" {
+			parts := strings.SplitN(m.Content, " ", 3)
+			if len(parts) < 3 {
+				s.ChannelMessageSend(m.ChannelID, "Invalid format. Usage: !airbot dalle3 <prompt>")
 				return
 			}
 			prompt := parts[2]
