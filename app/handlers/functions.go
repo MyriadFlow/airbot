@@ -25,7 +25,7 @@ func Generate(prompt string, sess_id string, nonce string) {
 		"channel_id": "` + channel_id + `",
 		"session_id": "` + sess_id + `",
 		"data": {
-			"version": "1166847114203123795",
+			"version": "1237876415471554623",
 			"id": "938956540159881230",
 			"name": "imagine",
 			"type": 1,
@@ -38,7 +38,7 @@ func Generate(prompt string, sess_id string, nonce string) {
 				"id": "938956540159881230",
 				"type":1,
 				"application_id": "936929561302675456",
-				"version": "1166847114203123795",
+				"version": "1237876415471554623",
 				"name": "imagine",
 				"description": "Create images with Midjourney",
 				"options": [{
