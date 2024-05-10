@@ -51,6 +51,17 @@ func Generate(prompt string, sess_id string, nonce string) {
 				"integration_types": [
 			    	0
 		      ],
+			  "dm_permission": true,
+			  "contexts": [
+        	  0,
+              1,
+              2
+              ],
+			  "integration_types": [
+              0,
+              1
+              ],
+              "global_popularity_rank": 1,
 			  "description_localized": "Create images with Midjourney",
 			  "name_localized": "imagine"		
 			},
@@ -59,7 +70,6 @@ func Generate(prompt string, sess_id string, nonce string) {
 		"nonce": "` + nonce + `",
 		"analytics_location": "slash_ui"
 	}`
-	fmt.Println("request json:", jsonStr)
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
 	if err != nil {
 		log.Fatal(err)
@@ -75,7 +85,6 @@ func Generate(prompt string, sess_id string, nonce string) {
 	defer resp.Body.Close()
 
 	fmt.Println("response Status:", resp.Status)
-	fmt.Println("response Headers:", resp.Header)
 	body, _ := io.ReadAll(resp.Body)
 	fmt.Println("response Body:", string(body))
 }
