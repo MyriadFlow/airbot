@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -83,10 +84,12 @@ func Generate(prompt string, sess_id string, nonce string) {
 		panic(err)
 	}
 	defer resp.Body.Close()
-
-	fmt.Println("response Status:", resp.Status)
-	body, _ := io.ReadAll(resp.Body)
-	fmt.Println("response Body:", string(body))
+	if resp.StatusCode != 200 {
+		fmt.Println("request json:", jsonStr)
+		fmt.Println("response Status:", resp.Status)
+		body, _ := io.ReadAll(resp.Body)
+		fmt.Println("response Body:", string(body))
+	}
 }
 
 func Upscale(number int, messageid string, imageid string, sess_id string, nonce string) error {
@@ -109,7 +112,6 @@ func Upscale(number int, messageid string, imageid string, sess_id string, nonce
 			"custom_id": "MJ::JOB::upsample::` + numberString + `::` + imageid + `"
 		}
 	}`
-	fmt.Println("request json:", jsonStr)
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
 	if err != nil {
 		return err
@@ -124,10 +126,14 @@ func Upscale(number int, messageid string, imageid string, sess_id string, nonce
 	}
 	defer resp.Body.Close()
 
-	fmt.Println("response Status:", resp.Status)
-	fmt.Println("response Headers:", resp.Header)
-	body, _ := io.ReadAll(resp.Body)
-	fmt.Println("response Body:", string(body))
+	if resp.StatusCode != 200 {
+		fmt.Println("request json:", jsonStr)
+		fmt.Println("response Status:", resp.Status)
+		body, _ := io.ReadAll(resp.Body)
+		fmt.Println("response Body:", string(body))
+		return errors.New("Request failed with status: " + resp.Status)
+	}
+
 	return nil
 
 }
@@ -151,7 +157,6 @@ func Variation(number int, messageid string, imageid string, sess_id string, non
 			"custom_id": "MJ::JOB::variation::` + numberString + `::` + imageid + `"
 		}
 	}`
-	fmt.Println("request json:", jsonStr)
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
 	if err != nil {
 		log.Fatal(err)
@@ -166,10 +171,12 @@ func Variation(number int, messageid string, imageid string, sess_id string, non
 	}
 	defer resp.Body.Close()
 
-	fmt.Println("response Status:", resp.Status)
-	fmt.Println("response Headers:", resp.Header)
-	body, _ := io.ReadAll(resp.Body)
-	fmt.Println("response Body:", string(body))
+	if resp.StatusCode != 200 {
+		fmt.Println("request json:", jsonStr)
+		fmt.Println("response Status:", resp.Status)
+		body, _ := io.ReadAll(resp.Body)
+		fmt.Println("response Body:", string(body))
+	}
 }
 
 func VarySubtle(number int, messageid string, imageid string, sess_id string, nonce string) {
@@ -192,7 +199,6 @@ func VarySubtle(number int, messageid string, imageid string, sess_id string, no
 			"custom_id": "MJ::JOB::low_variation::` + numberString + `::` + imageid + `::SOLO"
 		}
 	}`
-	fmt.Println("request json:", jsonStr)
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
 	if err != nil {
 		log.Fatal(err)
@@ -207,11 +213,12 @@ func VarySubtle(number int, messageid string, imageid string, sess_id string, no
 	}
 	defer resp.Body.Close()
 
-	fmt.Println("response Status:", resp.Status)
-	fmt.Println("response Headers:", resp.Header)
-	body, _ := io.ReadAll(resp.Body)
-	fmt.Println("response Body:", string(body))
-
+	if resp.StatusCode != 200 {
+		fmt.Println("request json:", jsonStr)
+		fmt.Println("response Status:", resp.Status)
+		body, _ := io.ReadAll(resp.Body)
+		fmt.Println("response Body:", string(body))
+	}
 }
 
 func VaryStrong(number int, messageid string, imageid string, sess_id string, nonce string) {
@@ -234,7 +241,6 @@ func VaryStrong(number int, messageid string, imageid string, sess_id string, no
 			"custom_id": "MJ::JOB::high_variation::` + numberString + `::` + imageid + `::SOLO"
 		}
 	}`
-	fmt.Println("request json:", jsonStr)
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
 	if err != nil {
 		log.Fatal(err)
@@ -249,11 +255,12 @@ func VaryStrong(number int, messageid string, imageid string, sess_id string, no
 	}
 	defer resp.Body.Close()
 
-	fmt.Println("response Status:", resp.Status)
-	fmt.Println("response Headers:", resp.Header)
-	body, _ := io.ReadAll(resp.Body)
-	fmt.Println("response Body:", string(body))
-
+	if resp.StatusCode != 200 {
+		fmt.Println("request json:", jsonStr)
+		fmt.Println("response Status:", resp.Status)
+		body, _ := io.ReadAll(resp.Body)
+		fmt.Println("response Body:", string(body))
+	}
 }
 func VaryRegion(number int, messageid string, imageid string, sess_id string, nonce string) {
 	numberString := strconv.Itoa(number)
@@ -275,7 +282,6 @@ func VaryRegion(number int, messageid string, imageid string, sess_id string, no
 			"custom_id": "MJ::Inpaint::` + numberString + `::` + imageid + `::SOLO"
 		}
 	}`
-	fmt.Println("request json:", jsonStr)
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
 	if err != nil {
 		log.Fatal(err)
@@ -290,11 +296,12 @@ func VaryRegion(number int, messageid string, imageid string, sess_id string, no
 	}
 	defer resp.Body.Close()
 
-	fmt.Println("response Status:", resp.Status)
-	fmt.Println("response Headers:", resp.Header)
-	body, _ := io.ReadAll(resp.Body)
-	fmt.Println("response Body:", string(body))
-
+	if resp.StatusCode != 200 {
+		fmt.Println("request json:", jsonStr)
+		fmt.Println("response Status:", resp.Status)
+		body, _ := io.ReadAll(resp.Body)
+		fmt.Println("response Body:", string(body))
+	}
 }
 
 func UpscaleSubtle(number int, messageid string, imageid string, sess_id string, nonce string) {
@@ -317,7 +324,6 @@ func UpscaleSubtle(number int, messageid string, imageid string, sess_id string,
 			"custom_id": "MJ::JOB::upsample_v6_2x_subtle::` + numberString + `::` + imageid + `::SOLO"
 		}
 	}`
-	fmt.Println("request json:", jsonStr)
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
 	if err != nil {
 		log.Fatal(err)
@@ -332,11 +338,12 @@ func UpscaleSubtle(number int, messageid string, imageid string, sess_id string,
 	}
 	defer resp.Body.Close()
 
-	fmt.Println("response Status:", resp.Status)
-	fmt.Println("response Headers:", resp.Header)
-	body, _ := io.ReadAll(resp.Body)
-	fmt.Println("response Body:", string(body))
-
+	if resp.StatusCode != 200 {
+		fmt.Println("request json:", jsonStr)
+		fmt.Println("response Status:", resp.Status)
+		body, _ := io.ReadAll(resp.Body)
+		fmt.Println("response Body:", string(body))
+	}
 }
 
 func UpscaleCreative(number int, messageid string, imageid string, sess_id string, nonce string) {
@@ -359,7 +366,6 @@ func UpscaleCreative(number int, messageid string, imageid string, sess_id strin
 			"custom_id": "MJ::JOB::upsample_v6_2x_creative::` + numberString + `::` + imageid + `::SOLO"
 		}
 	}`
-	fmt.Println("request json:", jsonStr)
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonStr))
 	if err != nil {
 		log.Fatal(err)
@@ -374,11 +380,12 @@ func UpscaleCreative(number int, messageid string, imageid string, sess_id strin
 	}
 	defer resp.Body.Close()
 
-	fmt.Println("response Status:", resp.Status)
-	fmt.Println("response Headers:", resp.Header)
-	body, _ := io.ReadAll(resp.Body)
-	fmt.Println("response Body:", string(body))
-
+	if resp.StatusCode != 200 {
+		fmt.Println("request json:", jsonStr)
+		fmt.Println("response Status:", resp.Status)
+		body, _ := io.ReadAll(resp.Body)
+		fmt.Println("response Body:", string(body))
+	}
 }
 
 func getImageFromMessageID(session *discordgo.Session, channelID, messageID string) (string, string, error) {
