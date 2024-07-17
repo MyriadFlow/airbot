@@ -36,6 +36,7 @@ where <index> is the index of the image you want to upscale
 
 #### To get variation of an image from the given images :
 
+
 ```
 !airbot variation <index>
 ```
