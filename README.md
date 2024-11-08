@@ -22,23 +22,16 @@ docker-compose up --build -d
 /generate <prompt>
 ```
 
-##
-
 #### To upscale an image from given set of image :
 
 ```
 !airbot upscale <index>
 ```
 
-where <index> is the index of the image you want to upscale
+where `<index>` is the index of the image you want to upscale
 
-##
-
-#### To get variation of an image from the given images : 
-
+#### To get variation of an image from the given images :
 
 ```
 !airbot variation <index>
 ```
-
-where <index> is the index of the image you want to get variations of
