@@ -89,6 +89,6 @@ jobs:
             pwd
             cd airbot
             sudo docker stop airbot && sudo docker rm airbot && sudo docker image rm airbot
-            echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u secrets.GHCR_USERNAME --password-stdin
+            echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin
             sudo docker pull ghcr.io/myriadflow/airbot:main
             sudo docker run --name="airbot" --env-file=.env --net=bridge -d ghcr.io/myriadflow/airbot:main
